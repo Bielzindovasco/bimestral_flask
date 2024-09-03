@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Livros</title>
+</head>
+<body>
+    <h1>Livros</h1>
+    <a href="{{ url_for('novo_livro') }}">Novo Livro</a>
+    <ul>
+        {% for livro in livros %}
+            <li>
+                {{ livro.titulo }} ({{ livro.ano }})
+                <a href="{{ url_for('editar_livro', id=livro.id) }}">Editar</a>
+                <a href="{{ url_for('remover_livro', id=livro.id) }}">Remover</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

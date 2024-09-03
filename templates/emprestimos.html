@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Empréstimos</title>
+</head>
+<body>
+    <h1>Empréstimos</h1>
+    <a href="{{ url_for('novo_emprestimo') }}">Novo Empréstimo</a>
+    <ul>
+        {% for emprestimo in emprestimos %}
+            <li>
+                {{ emprestimo.livro }} - {{ emprestimo.usuario }} ({{ emprestimo.data_emprestimo }})
+                <a href="{{ url_for('editar_emprestimo', id=emprestimo.id) }}">Editar</a>
+                <a href="{{ url_for('remover_emprestimo', id=emprestimo.id) }}">Remover</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

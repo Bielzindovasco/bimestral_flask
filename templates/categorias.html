@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Categorias</title>
+</head>
+<body>
+    <h1>Categorias</h1>
+    <a href="{{ url_for('nova_categoria') }}">Nova Categoria</a>
+    <ul>
+        {% for categoria in categorias %}
+            <li>
+                {{ categoria.nome }} ({{ categoria.descricao }})
+                <a href="{{ url_for('editar_categoria', id=categoria.id) }}">Editar</a>
+                <a href="{{ url_for('remover_categoria', id=categoria.id) }}">Remover</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
