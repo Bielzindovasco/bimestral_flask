@@ -46,9 +46,9 @@ class Livro:
     def listar_livros():
         conn = sqlite3.connect('livraria.db')
         cursor = conn.cursor()
-        values = cursor.execute("SELECT * FROM livros")
+        cursor.execute("SELECT * FROM livros")
         resultado = []
-        for row in values:
+        for row in cursor.fetchall():
             resultado.append({
                 'id': row[0],
                 'titulo': row[1],
@@ -131,9 +131,9 @@ class Autor:
     def listar_autores():
         conn = sqlite3.connect('livraria.db')
         cursor = conn.cursor()
-        values = cursor.execute("SELECT * FROM autores")
+        cursor.execute("SELECT * FROM autores")
         resultado = []
-        for row in values:
+        for row in cursor.fetchall():
             resultado.append({
                 'id': row[0],
                 'nome': row[1],
@@ -210,9 +210,9 @@ class Categoria:
     def listar_categorias():
         conn = sqlite3.connect('livraria.db')
         cursor = conn.cursor()
-        values = cursor.execute("SELECT * FROM categorias")
+        cursor.execute("SELECT * FROM categorias")
         resultado = []
-        for row in values:
+        for row in cursor.fetchall():
             resultado.append({
                 'id': row[0],
                 'nome': row[1],
@@ -276,13 +276,6 @@ class Emprestimo:
                 FOREIGN KEY(usuario_id) REFERENCES usuarios(id)
             );
         """)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS usuarios (
-                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                nome VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL
-            );
-        """)
         conn.close()
 
     def novo_emprestimo(livro_id, usuario_id, data_emprestimo, data_devolucao):
@@ -298,14 +291,14 @@ class Emprestimo:
     def listar_emprestimos():
         conn = sqlite3.connect('livraria.db')
         cursor = conn.cursor()
-        values = cursor.execute("""
+        cursor.execute("""
             SELECT e.id, l.titulo, u.nome, e.data_emprestimo, e.data_devolucao
             FROM emprestimos e
             JOIN livros l ON e.livro_id = l.id
             JOIN usuarios u ON e.usuario_id = u.id;
         """)
         resultado = []
-        for row in values:
+        for row in cursor.fetchall():
             resultado.append({
                 'id': row[0],
                 'livro': row[1],
@@ -359,12 +352,35 @@ class Emprestimo:
         conn.commit()
         conn.close()
 
+class Usuario:
+    def criar():
+        conn = sqlite3.connect('livraria.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                nome VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL
+            );
+        """)
+        conn.close()
+
+    def novo_usuario(nome, email):
+        conn = sqlite3.connect('livraria.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO usuarios (nome, email)
+            VALUES (?, ?);
+        """, (nome, email))
+        conn.commit()
+        conn.close()
+
     def listar_usuarios():
         conn = sqlite3.connect('livraria.db')
         cursor = conn.cursor()
-        values = cursor.execute("SELECT * FROM usuarios")
+        cursor.execute("SELECT * FROM usuarios")
         resultado = []
-        for row in values:
+        for row in cursor.fetchall():
             resultado.append({
                 'id': row[0],
                 'nome': row[1],
@@ -373,8 +389,49 @@ class Emprestimo:
         conn.close()
         return resultado
 
+    def detalha_usuario(id):
+        conn = sqlite3.connect('livraria.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM usuarios
+            WHERE id=?;
+        """, (id,))
+        item = cursor.fetchone()
+        conn.close()
+        if item is None:
+            return None
+        return {
+            'id': item[0],
+            'nome': item[1],
+            'email': item[2],
+        }
+
+    def atualiza_usuario(id, nome, email):
+        conn = sqlite3.connect('livraria.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE usuarios
+            SET nome=?, email=?
+            WHERE id=?;
+        """, (nome, email, id))
+        conn.commit()
+        conn.close()
+
+    def remove_usuario(id):
+        conn = sqlite3.connect('livraria.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+            DELETE FROM emprestimos WHERE usuario_id=?;
+        """, (id,))
+        cursor.execute("""
+            DELETE FROM usuarios WHERE id=?;
+        """, (id,))
+        conn.commit()
+        conn.close()
+
 if __name__ == '__main__':
     Livro.criar()
     Autor.criar()
     Categoria.criar()
     Emprestimo.criar()
+    Usuario.criar()
